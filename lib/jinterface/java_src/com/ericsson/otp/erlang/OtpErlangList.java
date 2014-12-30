@@ -29,7 +29,7 @@ import java.util.NoSuchElementException;
  * The arity of the list is the number of elements it contains.
  */
 public class OtpErlangList extends OtpErlangObject implements
-        Iterable<OtpErlangObject> {
+        Iterable<OtpErlangObject>, OtpErlangVarrier {
     // don't change this!
     private static final long serialVersionUID = 5999112769036676548L;
 
@@ -100,7 +100,12 @@ public class OtpErlangList extends OtpErlangObject implements
         if (elems.length == 0 && lastTail != null) {
             throw new OtpErlangException("Bad list, empty head, non-empty tail");
         }
-        this.lastTail = lastTail;
+        if (lastTail == null || lastTail instanceof OtpErlangList ||
+                lastTail instanceof OtpErlangVar &&
+                    ((OtpErlangVar) lastTail).isTailVariable())
+            this.lastTail = lastTail;
+        else
+            throw new OtpErlangException("Bad list tail");
     }
 
     /**
@@ -146,7 +151,11 @@ public class OtpErlangList extends OtpErlangObject implements
             if (buf.peek1() == OtpExternal.nilTag) {
                 buf.read_nil();
             } else {
-                lastTail = buf.read_any();
+                OtpErlangObject o = buf.read_any();
+                if (o instanceof OtpErlangList)
+                    lastTail = o;
+                else
+                    throw new OtpErlangDecodeException("Bad list tail");
             }
         } else {
             elems = NO_ELEMENTS;
@@ -266,35 +275,144 @@ public class OtpErlangList extends OtpErlangObject implements
 
     @Override
     public boolean equals(final Object o) {
+        if (o instanceof OtpErlangObject)
+            try {
+                match((OtpErlangObject) o, null);
+                return true;
+            } catch (OtpErlangException e) {
+                return false;
+            }
+        else
+            return false;
+    }
 
+    /**
+     * Matches given object against this object optionally containing
+     * variable placeholders, filling out bindings, if not null.
+     *
+     * @param o        the object to match
+     * @param bindings variable bindings or null
+     * @throws com.ericsson.otp.erlang.OtpErlangException if not matched
+     */
+    public void match(final OtpErlangObject o, Object bindings)
+            throws OtpErlangException {
         /*
          * Be careful to use methods even for "this", so that equals work also
          * for sublists
          */
 
-        if (!(o instanceof OtpErlangList)) {
-            return false;
-        }
+        if (!(o instanceof OtpErlangList))
+            throw new OtpErlangException("not a list");
 
-        final OtpErlangList l = (OtpErlangList) o;
+        OtpErlangList l1 = this;
+        OtpErlangList l2 = (OtpErlangList) o;
+        int a1 = l1.arity();
+        int a2 = l2.arity();
+        OtpErlangObject t1 = l1.lastTail;
+        OtpErlangObject t2 = l2.lastTail;
 
-        final int a = arity();
-        if (a != l.arity()) {
-            return false;
-        }
-        for (int i = 0; i < a; i++) {
-            if (!elementAt(i).equals(l.elementAt(i))) {
-                return false; // early exit
+        // simple case - both lists are proper
+        if (t1 == null && t2 == null) {
+            if (a1 != a2)
+                throw new OtpErlangException("list arity mismatch");
+            for (int i = 0; i < a1; i++) {
+                OtpErlangObject e1 = l1.elementAt(i);
+                OtpErlangObject e2 = l2.elementAt(i);
+                if (e1 instanceof OtpErlangVarrier)
+                    ((OtpErlangVarrier) e1).match(e2, bindings);
+                else if (!e1.equals(e2))
+                    throw new OtpErlangException("list element mismatch");
             }
+            return;
         }
-        final OtpErlangObject otherTail = l.getLastTail();
-        if (getLastTail() == null && otherTail == null) {
-            return true;
+
+        // my list shortage
+        if (t1 == null && a1 < a2)
+            throw new OtpErlangException("list arity mismatch");
+
+        // other list shortage
+        if (t2 == null && a1 > a2) {
+            throw new OtpErlangException("list arity mismatch");
         }
-        if (getLastTail() == null) {
-            return false;
+
+        int k1 = 0, k2 = 0;
+        while (true) {
+            while (k1 >= l1.arity() && t1 != null &&
+                    t1 instanceof OtpErlangList) {
+                l1 = (OtpErlangList) t1;
+                a1 = l1.arity();
+                k1 = 0;
+                t1 = l1.lastTail;
+            }
+            while (k2 >= a2 && t2 != null &&
+                    t2 instanceof OtpErlangList) {
+                l2 = (OtpErlangList) t2;
+                a2 = l2.arity();
+                k2 = 0;
+                t2 = l2.lastTail;
+            }
+            if (k1 < a1) {
+                OtpErlangObject e1 = l1.elementAt(k1++);
+                if (k2 < a2) {
+                    OtpErlangObject e2 = l2.elementAt(k2++);
+                    if (e1 instanceof OtpErlangVarrier)
+                        ((OtpErlangVarrier) e1).match(e2, bindings);
+                    else if (!e1.equals(e2))
+                        throw new OtpErlangException("list element mismatch");
+                    continue;
+                }
+                throw new OtpErlangException("list mismatch");
+            }
+            if (t1 == null) {
+                if (t2 == null)
+                    throw new OtpErlangException("list mismatch");
+                return;
+            }
+            if (t1 instanceof OtpErlangVar) {
+                OtpErlangVar var = (OtpErlangVar) t1;
+                if (var.isTailVariable()) {
+                    if (bindings == null)
+                        return;
+                    if (k2 == 0) {
+                        var.match(l2, bindings);
+                        return;
+                    }
+                    if (k2 < a2) {
+                        var.match(l2.getNthTail(k2), bindings);
+                        return;
+                    }
+                    if (t2 == null) {
+                        var.match(new OtpErlangList(), bindings);
+                        return;
+                    }
+                    return;
+                }
+            }
+            throw new OtpErlangException("list mismatch");
         }
-        return getLastTail().equals(l.getLastTail());
+    }
+
+    /**
+     * Makes new Erlang term replacing Var placeholder(s) with real value(s)
+     * from bindings
+     *
+     * @param bindings variable bindings
+     * @return new eterm object
+     */
+    public OtpErlangObject bind(Object bindings) throws OtpErlangException {
+        if (bindings == null)
+            throw new OtpErlangException("null bindings");
+        OtpErlangList list = (OtpErlangList) this.clone();
+        int a = list.arity();
+        for (int i=0; i<a; i++) {
+            OtpErlangObject e = list.elems[i];
+            if (e instanceof OtpErlangVarrier)
+                list.elems[i] = ((OtpErlangVarrier) e).bind(bindings);
+        }
+        OtpErlangObject tail = list.lastTail;
+        if (tail != null && tail instanceof OtpErlangVarrier)
+            list.lastTail = ((OtpErlangVarrier) tail).bind(bindings);
+        return list;
     }
 
     public OtpErlangObject getLastTail() {

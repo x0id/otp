@@ -23,7 +23,7 @@
 	 init_per_testcase/2, end_per_testcase/2]).
 
 -export([nodename/1, register_and_whereis/1, get_names/1, boolean_atom/1,
-	 node_ping/1, mbox_ping/1,
+	 format_match_bind/1, node_ping/1, mbox_ping/1,
 	 java_erlang_send_receive/1,
 	 java_internal_send_receive_same_node/1,
 	 java_internal_send_receive_different_nodes/1,
@@ -108,7 +108,8 @@ fundamental() ->
      get_names,            % GetNames.java
      boolean_atom,         % BooleanAtom.java
      maps,                 % Maps.java
-     fun_equals            % FunEquals.java
+     fun_equals,           % FunEquals.java
+     format_match_bind     % TestParser.java
     ].
 
 ping() ->
@@ -703,6 +704,17 @@ fun_equals(Config) when is_list(Config) ->
            ?config(data_dir, Config),
            "FunEquals",
            []).
+
+%%%-----------------------------------------------------------------
+format_match_bind(doc) ->
+    ["Test OtpErlangParser, OtpErlangPattern functions"];
+format_match_bind(suite) ->
+    [];
+format_match_bind(Config) when is_list(Config) ->
+    ok = jitu:java(?config(java, Config),
+		   ?config(data_dir, Config),
+		   "TestParser",
+		   []).
 
 %%%-----------------------------------------------------------------
 %%% INTERNAL FUNCTIONS

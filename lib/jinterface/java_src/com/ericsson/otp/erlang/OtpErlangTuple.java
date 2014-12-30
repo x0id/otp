@@ -27,7 +27,8 @@ package com.ericsson.otp.erlang;
  * indexed from 0 to (arity-1) and can be retrieved individually by using the
  * appropriate index.
  */
-public class OtpErlangTuple extends OtpErlangObject {
+public class OtpErlangTuple extends OtpErlangObject implements
+        OtpErlangVarrier {
     // don't change this!
     private static final long serialVersionUID = 9163498658004915935L;
 
@@ -215,24 +216,63 @@ public class OtpErlangTuple extends OtpErlangObject {
      */
     @Override
     public boolean equals(final Object o) {
-        if (!(o instanceof OtpErlangTuple)) {
+        if (o instanceof OtpErlangObject)
+            try {
+                match((OtpErlangObject) o, null);
+                return true;
+            } catch (OtpErlangException e) {
+                return false;
+            }
+        else
             return false;
-        }
+    }
+
+    /**
+     * Matches given object against this object optionally containing
+     * variable placeholders, filling out bindings, if not null.
+     *
+     * @param o        the object to match
+     * @param bindings variable bindings or null
+     * @throws com.ericsson.otp.erlang.OtpErlangException if not matched
+     */
+    public void match(final OtpErlangObject o, Object bindings)
+            throws OtpErlangException {
+        if (!(o instanceof OtpErlangTuple))
+            throw new OtpErlangException("not a tuple");
 
         final OtpErlangTuple t = (OtpErlangTuple) o;
         final int a = arity();
 
-        if (a != t.arity()) {
-            return false;
-        }
+        if (a != t.arity())
+            throw new OtpErlangException("tuple arity mismatch");
 
         for (int i = 0; i < a; i++) {
-            if (!elems[i].equals(t.elems[i])) {
-                return false; // early exit
-            }
+            OtpErlangObject e = elems[i];
+            if (e instanceof OtpErlangVarrier)
+                ((OtpErlangVarrier) e).match(t.elems[i], bindings);
+            else if (!e.equals(t.elems[i]))
+                throw new OtpErlangException("tuple element mismatch");
         }
+    }
 
-        return true;
+    /**
+     * Makes new Erlang term replacing Var placeholder(s) with real value(s)
+     * from bindings
+     *
+     * @param bindings variable bindings
+     * @return new eterm object
+     */
+    public OtpErlangObject bind(Object bindings) throws OtpErlangException {
+        if (bindings == null)
+            throw new OtpErlangException("null bindings");
+        OtpErlangTuple tuple = (OtpErlangTuple) this.clone();
+        int a = tuple.arity();
+        for (int i=0; i<a; i++) {
+            OtpErlangObject e = tuple.elems[i];
+            if (e instanceof OtpErlangVarrier)
+                tuple.elems[i] = ((OtpErlangVarrier) e).bind(bindings);
+        }
+        return tuple;
     }
 
     @Override
