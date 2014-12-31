@@ -69,7 +69,7 @@ package com.ericsson.otp.erlang;
  * // data type checking performed during matching, no custom class needed.
  * OtpErlangObject testTwo(OtpErlangObject eterm) throws OtpErlangException {
  *     OtpErlangPattern p = new OtpErlangPattern(&quot;{boy, Age, Name}&quot;);
- *     OtpErlangBind vars = new OtpErlangBind();
+ *     OtpErlangBinding vars = new OtpErlangBinding();
  *     if (p.match(eterm, vars))
  *         return OtpErlangParser.format(&quot;#{name =&gt; &tilde;s, age =&gt; &tilde;i}&quot;,
  *                 vars.value(&quot;Name&quot;), vars.value(&quot;Age&quot;));
