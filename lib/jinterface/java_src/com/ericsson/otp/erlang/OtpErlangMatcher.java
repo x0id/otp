@@ -22,7 +22,7 @@ package com.ericsson.otp.erlang;
  * Interface describing objects capable to perform match and bind operations.
  */
 
-public interface OtpErlangVarrier {
+public interface OtpErlangMatcher {
     /**
      * Matches given object against this object optionally containing variable
      * placeholders, filling out bindings, if not null.
@@ -31,7 +31,7 @@ public interface OtpErlangVarrier {
      *            the object to match
      * @param bindings
      *            variable bindings or null. Object of type
-     *            {@link OtpErlangBind} may be provided and used later to get
+     *            {@link OtpErlangBinding} may be provided and used later to get
      *            bound values by variable names. Also, if instance of the
      *            object was created with
      *            {@link OtpErlangParser#format(String, Object...)} with class

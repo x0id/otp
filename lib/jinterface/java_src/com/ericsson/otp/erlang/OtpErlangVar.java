@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
  * Variable placeholder object used when ErlangOtpParser creates object from
  * specification containing variables (names starting with capital letter or _).
  */
-public class OtpErlangVar extends OtpErlangObject implements OtpErlangVarrier {
+public class OtpErlangVar extends OtpErlangObject implements OtpErlangMatcher {
 
     private static final long serialVersionUID = 7681811977231464284L;
 
@@ -106,8 +106,8 @@ public class OtpErlangVar extends OtpErlangObject implements OtpErlangVarrier {
             throws OtpErlangException {
         if (skip || bindings == null)
             return;
-        if (bindings instanceof OtpErlangBind) {
-            if (((OtpErlangBind) bindings).put(name, o))
+        if (bindings instanceof OtpErlangBinding) {
+            if (((OtpErlangBinding) bindings).put(name, o))
                 return;
             throw new OtpErlangException(name + "-variable didn't match " +
                     "previously bound value");
@@ -140,8 +140,8 @@ public class OtpErlangVar extends OtpErlangObject implements OtpErlangVarrier {
     public OtpErlangObject bind(Object bindings) throws OtpErlangException {
         if (bindings == null)
             throw new RuntimeException(name + "-variable: null bindings");
-        if (bindings instanceof OtpErlangBind) {
-            OtpErlangObject o = ((OtpErlangBind) bindings).value(name);
+        if (bindings instanceof OtpErlangBinding) {
+            OtpErlangObject o = ((OtpErlangBinding) bindings).value(name);
             if (o == null)
                 throw new OtpErlangException(name + "-variable not set");
             return o;

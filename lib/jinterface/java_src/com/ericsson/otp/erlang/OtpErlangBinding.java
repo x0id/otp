@@ -26,13 +26,13 @@ import java.util.Map;
  * Implements binder object to keep values of variables in pattern
  * bound to particular Erlang term object.
  */
-public class OtpErlangBind {
+public class OtpErlangBinding {
     private HashMap<String, OtpErlangObject> map;
 
     /**
      * default constructor.
      */
-    public OtpErlangBind() {
+    public OtpErlangBinding() {
         map = new HashMap<String, OtpErlangObject>();
     }
 

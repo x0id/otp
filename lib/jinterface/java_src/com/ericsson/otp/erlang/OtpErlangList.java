@@ -29,7 +29,7 @@ import java.util.NoSuchElementException;
  * The arity of the list is the number of elements it contains.
  */
 public class OtpErlangList extends OtpErlangObject implements
-        Iterable<OtpErlangObject>, OtpErlangVarrier {
+        Iterable<OtpErlangObject>, OtpErlangMatcher {
     // don't change this!
     private static final long serialVersionUID = 5999112769036676548L;
 
@@ -296,10 +296,6 @@ public class OtpErlangList extends OtpErlangObject implements
      */
     public void match(final OtpErlangObject o, Object bindings)
             throws OtpErlangException {
-        /*
-         * Be careful to use methods even for "this", so that equals work also
-         * for sublists
-         */
 
         if (!(o instanceof OtpErlangList))
             throw new OtpErlangException("not a list");
@@ -318,8 +314,8 @@ public class OtpErlangList extends OtpErlangObject implements
             for (int i = 0; i < a1; i++) {
                 OtpErlangObject e1 = l1.elementAt(i);
                 OtpErlangObject e2 = l2.elementAt(i);
-                if (e1 instanceof OtpErlangVarrier)
-                    ((OtpErlangVarrier) e1).match(e2, bindings);
+                if (e1 instanceof OtpErlangMatcher)
+                    ((OtpErlangMatcher) e1).match(e2, bindings);
                 else if (!e1.equals(e2))
                     throw new OtpErlangException("list element mismatch");
             }
@@ -355,8 +351,8 @@ public class OtpErlangList extends OtpErlangObject implements
                 OtpErlangObject e1 = l1.elementAt(k1++);
                 if (k2 < a2) {
                     OtpErlangObject e2 = l2.elementAt(k2++);
-                    if (e1 instanceof OtpErlangVarrier)
-                        ((OtpErlangVarrier) e1).match(e2, bindings);
+                    if (e1 instanceof OtpErlangMatcher)
+                        ((OtpErlangMatcher) e1).match(e2, bindings);
                     else if (!e1.equals(e2))
                         throw new OtpErlangException("list element mismatch");
                     continue;
@@ -406,12 +402,12 @@ public class OtpErlangList extends OtpErlangObject implements
         int a = list.arity();
         for (int i=0; i<a; i++) {
             OtpErlangObject e = list.elems[i];
-            if (e instanceof OtpErlangVarrier)
-                list.elems[i] = ((OtpErlangVarrier) e).bind(bindings);
+            if (e instanceof OtpErlangMatcher)
+                list.elems[i] = ((OtpErlangMatcher) e).bind(bindings);
         }
         OtpErlangObject tail = list.lastTail;
-        if (tail != null && tail instanceof OtpErlangVarrier)
-            list.lastTail = ((OtpErlangVarrier) tail).bind(bindings);
+        if (tail != null && tail instanceof OtpErlangMatcher)
+            list.lastTail = ((OtpErlangMatcher) tail).bind(bindings);
         return list;
     }
 

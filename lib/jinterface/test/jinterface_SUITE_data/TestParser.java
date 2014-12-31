@@ -58,7 +58,7 @@ public class TestParser {
 
     public static void match(OtpErlangPattern pattern, OtpErlangObject term,
             boolean match) throws OtpErlangException {
-        OtpErlangBind bindings = new OtpErlangBind();
+        OtpErlangBinding bindings = new OtpErlangBinding();
         tm(pattern, term, bindings, match);
         System.out.println("bindings:");
         bindings.print(System.out);
@@ -232,7 +232,7 @@ public class TestParser {
 		OtpErlangObject p = OtpErlangParser.format("{a, A, B, C}", RecA.class);
 		OtpErlangObject o = OtpErlangParser.format("{a, 1, lalala, 3}");
 		RecA a = new RecA();
-		((OtpErlangVarrier) p).match(o, a);
+		((OtpErlangMatcher) p).match(o, a);
 		System.out.println("a: " + a);
 
     	OtpErlangPattern p1 = pattern("{recA, A, B, C}", RecA.class);

@@ -58,7 +58,7 @@ COMM = \
 ERL = \
 	OtpErlangAtom \
 	OtpErlangBinary \
-	OtpErlangBind \
+	OtpErlangBinding \
 	OtpErlangBitstr \
 	OtpErlangBoolean \
 	OtpErlangByte \
@@ -68,6 +68,7 @@ ERL = \
 	OtpErlangInt \
 	OtpErlangList \
 	OtpErlangLong \
+	OtpErlangMatcher \
 	OtpErlangObject \
 	OtpErlangParser \
 	OtpErlangPattern \
@@ -80,8 +81,7 @@ ERL = \
 	OtpErlangMap \
 	OtpErlangUInt \
 	OtpErlangUShort \
-	OtpErlangVar \
-	OtpErlangVarrier
+	OtpErlangVar
 
 MISC = \
 	OtpSystem

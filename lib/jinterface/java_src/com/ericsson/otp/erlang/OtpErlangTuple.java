@@ -28,7 +28,7 @@ package com.ericsson.otp.erlang;
  * appropriate index.
  */
 public class OtpErlangTuple extends OtpErlangObject implements
-        OtpErlangVarrier {
+        OtpErlangMatcher {
     // don't change this!
     private static final long serialVersionUID = 9163498658004915935L;
 
@@ -248,8 +248,8 @@ public class OtpErlangTuple extends OtpErlangObject implements
 
         for (int i = 0; i < a; i++) {
             OtpErlangObject e = elems[i];
-            if (e instanceof OtpErlangVarrier)
-                ((OtpErlangVarrier) e).match(t.elems[i], bindings);
+            if (e instanceof OtpErlangMatcher)
+                ((OtpErlangMatcher) e).match(t.elems[i], bindings);
             else if (!e.equals(t.elems[i]))
                 throw new OtpErlangException("tuple element mismatch");
         }
@@ -269,8 +269,8 @@ public class OtpErlangTuple extends OtpErlangObject implements
         int a = tuple.arity();
         for (int i=0; i<a; i++) {
             OtpErlangObject e = tuple.elems[i];
-            if (e instanceof OtpErlangVarrier)
-                tuple.elems[i] = ((OtpErlangVarrier) e).bind(bindings);
+            if (e instanceof OtpErlangMatcher)
+                tuple.elems[i] = ((OtpErlangMatcher) e).bind(bindings);
         }
         return tuple;
     }

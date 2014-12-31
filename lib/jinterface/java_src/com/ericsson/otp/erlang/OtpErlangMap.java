@@ -32,7 +32,7 @@ import java.util.Set;
  * values can be retrieved as arrays and the value for a key can be queried.
  *
  */
-public class OtpErlangMap extends OtpErlangObject implements OtpErlangVarrier {
+public class OtpErlangMap extends OtpErlangObject implements OtpErlangMatcher {
     // don't change this!
     private static final long serialVersionUID = -6410770117696198497L;
 
@@ -301,10 +301,10 @@ public class OtpErlangMap extends OtpErlangObject implements OtpErlangVarrier {
             for (Map.Entry<OtpErlangObject, OtpErlangObject> e : entrySet()) {
                 key = e.getKey();
                 val = e.getValue();
-                if (val instanceof OtpErlangVarrier) {
+                if (val instanceof OtpErlangMatcher) {
                     if (m.get(key) == null)
                         throw new OtpErlangException("map value mismatch");
-                    ((OtpErlangVarrier) val).match(m.get(key), bindings);
+                    ((OtpErlangMatcher) val).match(m.get(key), bindings);
                 } else {
                     OtpErlangObject v = m.get(key);
                     if (v == null || !v.equals(val))
@@ -327,8 +327,8 @@ public class OtpErlangMap extends OtpErlangObject implements OtpErlangVarrier {
         OtpErlangMap ret = (OtpErlangMap) this.clone();
         for (Map.Entry<OtpErlangObject, OtpErlangObject> e : ret.entrySet()) {
             OtpErlangObject val = e.getValue();
-            if (val instanceof OtpErlangVarrier)
-                ret.put(e.getKey(), ((OtpErlangVarrier) val).bind(bindings));
+            if (val instanceof OtpErlangMatcher)
+                ret.put(e.getKey(), ((OtpErlangMatcher) val).bind(bindings));
         }
         return ret;
     }

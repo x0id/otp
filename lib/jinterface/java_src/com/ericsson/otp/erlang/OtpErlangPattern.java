@@ -110,13 +110,13 @@ public class OtpErlangPattern {
      * @param eterm
      *            arbitrary Erlang term
      * @param bindings
-     *            custom data binder object or {@link OtpErlangBind} or null. If
+     *            custom data binder object or {@link OtpErlangBinding} or null. If
      *            bindings set to null, perform legacy Erlang term comparison.
      * @return result of matching.
      */
     public boolean match(OtpErlangObject eterm, Object bindings) {
-        if (term instanceof OtpErlangVarrier) try {
-            ((OtpErlangVarrier) term).match(eterm, bindings);
+        if (term instanceof OtpErlangMatcher) try {
+            ((OtpErlangMatcher) term).match(eterm, bindings);
             return true;
         } catch (OtpErlangException e) {
             return false;
@@ -131,15 +131,15 @@ public class OtpErlangPattern {
      * @param eterm
      *            arbitrary Erlang term
      * @param bindings
-     *            custom data binder object or {@link OtpErlangBind} or null. If
+     *            custom data binder object or {@link OtpErlangBinding} or null. If
      *            bindings set to null, perform legacy Erlang term comparison.
      * @throws OtpErlangException
      *             if eterm not matched pattern.
      */
     public void decode(OtpErlangObject eterm, Object bindings)
             throws OtpErlangException {
-        if (term instanceof OtpErlangVarrier)
-            ((OtpErlangVarrier) term).match(eterm, bindings);
+        if (term instanceof OtpErlangMatcher)
+            ((OtpErlangMatcher) term).match(eterm, bindings);
         else if (!term.equals(eterm))
             throw new OtpErlangException("couldn't match const pattern");
     }
@@ -149,16 +149,16 @@ public class OtpErlangPattern {
      * exception in case of error.
      * 
      * @param bindings
-     *            custom data binder object or {@link OtpErlangBind} used as
+     *            custom data binder object or {@link OtpErlangBinding} used as
      *            values container for variables in pattern.
      * @return new Erlang term
      * @throws OtpErlangException
      */
     public OtpErlangObject bind(Object bindings) throws OtpErlangException {
-        if (term instanceof OtpErlangVarrier && bindings == null)
+        if (term instanceof OtpErlangMatcher && bindings == null)
             throw new RuntimeException("null bindings");
-        return (term instanceof OtpErlangVarrier)
-                ? ((OtpErlangVarrier) term).bind(bindings)
+        return (term instanceof OtpErlangMatcher)
+                ? ((OtpErlangMatcher) term).bind(bindings)
                 : (OtpErlangObject) term.clone();
     }
 
