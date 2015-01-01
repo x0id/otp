@@ -19,7 +19,6 @@
 package com.ericsson.otp.erlang;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -35,8 +34,6 @@ import java.util.Set;
 public class OtpErlangMap extends OtpErlangObject implements OtpErlangMatcher {
     // don't change this!
     private static final long serialVersionUID = -6410770117696198497L;
-
-    private static final OtpErlangObject[] NO_ELEMENTS = new OtpErlangObject[0];
 
     private HashMap<OtpErlangObject, OtpErlangObject> map;
 
