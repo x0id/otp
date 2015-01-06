@@ -80,6 +80,37 @@ public abstract class OtpErlangObject implements Serializable, Cloneable {
     @Override
     public abstract boolean equals(Object o);
 
+    /**
+     * Perform match operation against given term.
+     *
+     * @param term
+     *            the object to match
+     * @param bindings
+     *            variable bindings
+     * @throws OtpErlangException
+     *             when match failed
+     */
+    public void match(final OtpErlangObject term, final Object... bindings)
+            throws OtpErlangException {
+        if (!equals(term)) {
+            throw new OtpErlangException();
+        }
+    }
+
+    /**
+     * Make new Erlang term replacing variables with the respective values from
+     * bindings argument(s).
+     *
+     * @param bindings
+     *            variable bindings
+     * @return new term
+     * @throws OtpErlangException
+     */
+    public OtpErlangObject bind(final Object... bindings)
+            throws OtpErlangException {
+        return this;
+    }
+
     @Override
     public int hashCode() {
         if (hashCodeValue == 0) {

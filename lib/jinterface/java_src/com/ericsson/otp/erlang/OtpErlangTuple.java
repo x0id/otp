@@ -236,6 +236,37 @@ public class OtpErlangTuple extends OtpErlangObject {
     }
 
     @Override
+    public void match(final OtpErlangObject term, final Object... bindings)
+            throws OtpErlangException {
+        if (!(term instanceof OtpErlangTuple)) {
+            throw new OtpErlangException("not a tuple");
+        }
+        final OtpErlangTuple t = (OtpErlangTuple) term;
+        final int a = arity();
+        if (a != t.arity()) {
+            throw new OtpErlangException("tuple arity mismatch");
+        }
+        for (int i = 0; i < a; i++) {
+            elems[i].match(t.elems[i], bindings);
+        }
+    }
+
+    @Override
+    public OtpErlangObject bind(final Object... bindings)
+            throws OtpErlangException {
+        if (bindings == null) {
+            throw new OtpErlangException("null bindings");
+        }
+        final OtpErlangTuple tuple = (OtpErlangTuple) this.clone();
+        final int a = tuple.arity();
+        for (int i = 0; i < a; i++) {
+            final OtpErlangObject e = tuple.elems[i];
+            tuple.elems[i] = e.bind(bindings);
+        }
+        return tuple;
+    }
+
+    @Override
     protected int doHashCode() {
         final OtpErlangObject.Hash hash = new OtpErlangObject.Hash(9);
         final int a = arity();
