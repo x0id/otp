@@ -1,32 +1,13 @@
-import java.util.HashMap;
+import com.ericsson.otp.erlang.OtpBindings;
 import com.ericsson.otp.erlang.OtpErlangAtom;
 import com.ericsson.otp.erlang.OtpErlangException;
 import com.ericsson.otp.erlang.OtpErlangInt;
 import com.ericsson.otp.erlang.OtpErlangObject;
 import com.ericsson.otp.erlang.OtpErlangTuple;
 import com.ericsson.otp.erlang.OtpOutputStream;
+import com.ericsson.otp.erlang.OtpPattern;
 
 public class CoreMatch {
-
-	/*
-	 * example of bindings
-	 */
-	public static class Vars {
-
-		HashMap<String, OtpErlangObject> map = new HashMap<>();
-
-		public void put(String name, OtpErlangObject term)
-				throws OtpErlangException {
-			if (map.containsKey(name))
-				throw new OtpErlangException("variable override " + name);
-			map.put(name, term);
-		}
-
-		public OtpErlangObject get(String var) {
-			return map.get(var);
-		}
-
-	}
 
 	/*
 	 * example of variable
@@ -46,7 +27,6 @@ public class CoreMatch {
 			return name;
 		}
 
-		// FIXME: change encode signature to throw exception?
 		@Override
 		public void encode(OtpOutputStream buf) {
 		}
@@ -60,26 +40,26 @@ public class CoreMatch {
 		 * example of match
 		 */
 		@Override
-		public void match(OtpErlangObject term, Object... bindings)
-				throws OtpErlangException {
+		protected boolean match(OtpErlangObject term, Object... bindings) {
 			if (bindings.length > 0) {
 				Object o = bindings[0];
-				if (o instanceof Vars) {
-					((Vars) o).put(name, term);
+				if (o instanceof OtpBindings) {
+					return ((OtpBindings) o).put(name, term);
 				}
 			}
+			return true;
 		}
 
 		/*
 		 * example of bind
 		 */
 		@Override
-		public OtpErlangObject bind(Object... bindings)
+		protected OtpErlangObject bind(Object... bindings)
 				throws OtpErlangException {
 			if (bindings.length > 0) {
 				Object o = bindings[0];
-				if (o instanceof Vars) {
-					return ((Vars) o).get(name);
+				if (o instanceof OtpBindings) {
+					return ((OtpBindings) o).get(name);
 				}
 			}
 			return this;
@@ -93,27 +73,34 @@ public class CoreMatch {
 	}
 
 	static void test1() throws OtpErlangException {
-		OtpErlangTuple p1 = makeTuple(new OtpErlangAtom("a"), new Var("A"));
+		OtpPattern pattern = new OtpPattern(makeTuple(new OtpErlangAtom("a"),
+				new Var("A")));
 
-		OtpErlangTuple t1 = makeTuple(new OtpErlangAtom("a"), new OtpErlangInt(
-				1000));
+		OtpErlangTuple term = makeTuple(new OtpErlangAtom("a"),
+				new OtpErlangInt(1000));
 
-		// call match with no bindings
-		p1.match(t1);
-		Vars vars = new Vars();
-		System.out.println("A = " + vars.get("A"));
+		OtpBindings bindings = new OtpBindings();
+		System.out.println("A = " + bindings.get("A"));
 
-		// call match with bindings
-		p1.match(t1, vars);
-		System.out.println("A = " + vars.get("A"));
+		// call instance method
+		boolean r1 = pattern.match(term, bindings);
+		System.out.println("ret = " + r1 + ", A = " + bindings.get("A"));
 
-		// call bind with no bindings
-		OtpErlangObject t2 = p1.bind();
-		System.out.println("fake bind result: " + t2);
+		// call class method - "pattern match term"
+		boolean r2 = OtpPattern.matchTerm(pattern, term, bindings);
+		System.out.println("ret = " + r2 + ", A = " + bindings.get("A"));
 
-		// call bind with bindings
-		OtpErlangObject t3 = p1.bind(vars);
-		System.out.println("real bind result: " + t3);
+		// call class method - "term match pattern"
+		boolean r3 = OtpPattern.matchPattern(term, pattern, bindings);
+		System.out.println("ret = " + r3 + ", A = " + bindings.get("A"));
+
+		// call instance method - bind
+		OtpErlangObject t1 = pattern.bind(bindings);
+		System.out.println("bind result: " + t1);
+
+		// call class method - bind
+		OtpErlangObject t2 = OtpPattern.bindPattern(pattern, bindings);
+		System.out.println("bind result: " + t2);
 	}
 
 	public static void main(String[] args) {

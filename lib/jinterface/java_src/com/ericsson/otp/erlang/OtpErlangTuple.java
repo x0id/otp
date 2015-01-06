@@ -236,23 +236,26 @@ public class OtpErlangTuple extends OtpErlangObject {
     }
 
     @Override
-    public void match(final OtpErlangObject term, final Object... bindings)
-            throws OtpErlangException {
+    protected boolean match(final OtpErlangObject term,
+            final Object... bindings) {
         if (!(term instanceof OtpErlangTuple)) {
-            throw new OtpErlangException("not a tuple");
+            return false;
         }
         final OtpErlangTuple t = (OtpErlangTuple) term;
         final int a = arity();
         if (a != t.arity()) {
-            throw new OtpErlangException("tuple arity mismatch");
+            return false;
         }
         for (int i = 0; i < a; i++) {
-            elems[i].match(t.elems[i], bindings);
+            if (!elems[i].match(t.elems[i], bindings)) {
+                return false;
+            }
         }
+        return true;
     }
 
     @Override
-    public OtpErlangObject bind(final Object... bindings)
+    protected OtpErlangObject bind(final Object... bindings)
             throws OtpErlangException {
         if (bindings == null) {
             throw new OtpErlangException("null bindings");

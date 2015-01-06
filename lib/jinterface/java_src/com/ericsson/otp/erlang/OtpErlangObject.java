@@ -87,14 +87,11 @@ public abstract class OtpErlangObject implements Serializable, Cloneable {
      *            the object to match
      * @param bindings
      *            variable bindings
-     * @throws OtpErlangException
-     *             when match failed
+     * @return true if match succeeded
      */
-    public void match(final OtpErlangObject term, final Object... bindings)
-            throws OtpErlangException {
-        if (!equals(term)) {
-            throw new OtpErlangException();
-        }
+    protected boolean match(final OtpErlangObject term,
+            final Object... bindings) {
+        return equals(term);
     }
 
     /**
@@ -106,7 +103,7 @@ public abstract class OtpErlangObject implements Serializable, Cloneable {
      * @return new term
      * @throws OtpErlangException
      */
-    public OtpErlangObject bind(final Object... bindings)
+    protected OtpErlangObject bind(final Object... bindings)
             throws OtpErlangException {
         return this;
     }
