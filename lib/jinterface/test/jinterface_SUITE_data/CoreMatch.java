@@ -21,7 +21,7 @@ public class CoreMatch {
 
 		// call partial bind
 		OtpErlangObject t1 = pattern.bindPartial(new Bindings());
-		System.out.println("bind result: " + t1);
+		System.out.println("partial bind result: " + t1);
 
 		// call bind
 		OtpErlangObject t2 = pattern.bind(bindings);

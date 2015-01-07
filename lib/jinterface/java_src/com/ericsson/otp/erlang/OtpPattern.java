@@ -1,6 +1,6 @@
 package com.ericsson.otp.erlang;
 
-public class OtpPattern<Bindings> extends OtpErlangObject {
+public class OtpPattern<Bindings, Counter> extends OtpErlangObject {
 
     private static final long serialVersionUID = -5217528359942859115L;
 
@@ -34,8 +34,8 @@ public class OtpPattern<Bindings> extends OtpErlangObject {
         return patternObject.bind(bindings);
     }
 
-    public OtpErlangObject bindPartial(final Bindings bindings)
-            throws OtpErlangException {
-        return patternObject.bind(bindings, true);
+    public OtpErlangObject bindPartial(final Bindings bindings,
+            final Counter cnt) throws OtpErlangException {
+        return patternObject.bind(bindings, true, cnt);
     }
 }

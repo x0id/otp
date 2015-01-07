@@ -56,6 +56,13 @@ public class Variable extends OtpErlangObject {
                     final Object partOn = bindings[1];
                     if (partOn instanceof Boolean) {
                         if ((Boolean) partOn) {
+                            // increment optional counter of unbound variables
+                            if (bindings.length > 2) {
+                                final Object c = bindings[2];
+                                if (c instanceof Counter) {
+                                    ((Counter) c).inc();
+                                }
+                            }
                             // leave variable unbound
                             return this;
                         }
