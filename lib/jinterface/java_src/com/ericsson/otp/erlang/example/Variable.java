@@ -46,9 +46,23 @@ public class Variable extends OtpErlangObject {
         if (bindings.length > 0) {
             final Object o = bindings[0];
             if (o instanceof Bindings) {
-                return ((Bindings) o).get(name);
+                final OtpErlangObject ret = ((Bindings) o).get(name);
+                if (ret != null) {
+                    // binding succeeded
+                    return ret;
+                }
+                // if no binding found, check if partial binding is enabled
+                if (bindings.length > 1) {
+                    final Object partOn = bindings[1];
+                    if (partOn instanceof Boolean) {
+                        if ((Boolean) partOn) {
+                            // leave variable unbound
+                            return this;
+                        }
+                    }
+                }
             }
         }
-        return this;
+        throw new OtpErlangException("incomplete binding");
     }
 }

@@ -33,4 +33,9 @@ public class OtpPattern<Bindings> extends OtpErlangObject {
             throws OtpErlangException {
         return patternObject.bind(bindings);
     }
+
+    public OtpErlangObject bindPartial(final Bindings bindings)
+            throws OtpErlangException {
+        return patternObject.bind(bindings, true);
+    }
 }

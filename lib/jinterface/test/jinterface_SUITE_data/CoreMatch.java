@@ -15,13 +15,17 @@ public class CoreMatch {
 		Bindings bindings = new Bindings();
 		System.out.println("A = " + bindings.get("A"));
 
-		// call instance method
+		// call match
 		boolean r1 = pattern.match(term, bindings);
 		System.out.println("ret = " + r1 + ", A = " + bindings.get("A"));
 
-		// call instance method - bind
-		OtpErlangObject t1 = pattern.bind(bindings);
+		// call partial bind
+		OtpErlangObject t1 = pattern.bindPartial(new Bindings());
 		System.out.println("bind result: " + t1);
+
+		// call bind
+		OtpErlangObject t2 = pattern.bind(bindings);
+		System.out.println("bind result: " + t2);
 	}
 
 	public static void main(String[] args) {

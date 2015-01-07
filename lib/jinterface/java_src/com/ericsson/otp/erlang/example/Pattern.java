@@ -19,4 +19,9 @@ public class Pattern {
             throws OtpErlangException {
         return pattern.bind(bindings);
     }
+
+    public OtpErlangObject bindPartial(final Bindings bindings)
+            throws OtpErlangException {
+        return pattern.bindPartial(bindings);
+    }
 }
