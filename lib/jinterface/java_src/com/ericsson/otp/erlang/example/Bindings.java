@@ -1,8 +1,10 @@
-package com.ericsson.otp.erlang;
+package com.ericsson.otp.erlang.example;
 
 import java.util.HashMap;
 
-public class OtpBindings {
+import com.ericsson.otp.erlang.OtpErlangObject;
+
+public class Bindings {
     HashMap<String, OtpErlangObject> map = new HashMap<String, OtpErlangObject>();
 
     public boolean put(final String name, final OtpErlangObject term) {
